@@ -120,10 +120,14 @@ namespace MT.Controllers
             var d = DigitsOnly(phone);
             // Qatar: country code 974 + 8 digits. Allow both with and without 974.
             var core = d.StartsWith("974") && d.Length > 3 ? d.Substring(3) : d;
+            
+            // Create all possible phone number formats
+            var phoneWithPlus974 = $"+974{core}";
+            var phone974 = $"974{core}";
 
             // Try via UserProfiles first
             var userId = await _db.UserProfiles
-                .Where(p => p.Phone == phone || p.Phone == d || p.Phone == core)
+                .Where(p => p.Phone == phone || p.Phone == d || p.Phone == core || p.Phone == phoneWithPlus974 || p.Phone == phone974)
                 .Select(p => p.UserId)
                 .FirstOrDefaultAsync();
 
@@ -135,7 +139,12 @@ namespace MT.Controllers
             if (u == null)
             {
                 // Fallback to AspNetUsers.PhoneNumber using same variants
-                u = await _db.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phone || x.PhoneNumber == d || x.PhoneNumber == core);
+                u = await _db.Users.FirstOrDefaultAsync(x => 
+                    x.PhoneNumber == phone || 
+                    x.PhoneNumber == d || 
+                    x.PhoneNumber == core ||
+                    x.PhoneNumber == phoneWithPlus974 ||
+                    x.PhoneNumber == phone974);
             }
             return u;
         }
@@ -254,17 +263,9 @@ namespace MT.Controllers
             var (sent, err) = await StartVerificationAsync(phone);
             if (!sent)
             {
-                // If Firebase not configured or in development mode
-                if (err != null && (err.Contains("Development mode") || err.Contains("123456")))
-                {
-                    TempData["ok"] = "Development mode: Use OTP code '123456' to login.";
-                }
-                else
-                {
-                    TempData["err"] = $"Failed to send OTP: {err}";
-                    await LogOtpAsync(user.Id, phone, "Owner", "send_failed", false, null);
-                    return RedirectToAction(nameof(OwnerLogin));
-                }
+                TempData["err"] = $"Failed to send OTP: {err}";
+                await LogOtpAsync(user.Id, phone, "Owner", "send_failed", false, null);
+                return RedirectToAction(nameof(OwnerLogin));
             }
 
             SetOtpSession(user.Id, "Owner", phone);
@@ -376,9 +377,23 @@ namespace MT.Controllers
         public async Task<IActionResult> MinistryLoginPost(string phone)
         {
             var user = await FindUserByPhoneAsync(phone);
-            if (user == null || !(await IsInRoleAsync(user, "MinistryOfficer")))
+            
+            // Debug logging
+            if (user == null)
             {
-                TempData["err"] = "Phone number not found.";
+                TempData["err"] = $"Phone number not found for: {phone}";
+                return RedirectToAction(nameof(MinistryLogin));
+            }
+            
+            // Check both possible role names for Ministry users
+            var isMinistryOfficer = await IsInRoleAsync(user, "MinistryOfficer");
+            var isMinistryOfficerUpper = await IsInRoleAsync(user, "MINISTRYOFFICER");
+            
+            if (!isMinistryOfficer && !isMinistryOfficerUpper)
+            {
+                // Get user's actual roles for debugging
+                var userRoles = await _userManager.GetRolesAsync(user);
+                TempData["err"] = $"User found but not in Ministry role. User roles: {string.Join(", ", userRoles)}. Email: {user.Email}";
                 return RedirectToAction(nameof(MinistryLogin));
             }
             // Do not enforce cooldown on initial login request; only cap the total per session
@@ -1024,6 +1039,37 @@ namespace MT.Controllers
             HttpContext.Session.Remove("OTP_TargetPhone");
 
             return Redirect(string.IsNullOrWhiteSpace(returnUrl) ? Url.Action("List", "Vehicle", new { type = "truck" })! : returnUrl);
+        }
+
+        // DEBUG: Check what phone numbers are actually in the database
+        [Route("debug/phones")]
+        public async Task<IActionResult> DebugPhones()
+        {
+            var users = await _db.Users
+                .Select(u => new { 
+                    u.Email, 
+                    u.PhoneNumber, 
+                    u.PhoneNumberConfirmed 
+                })
+                .ToListAsync();
+                
+            var userRoles = await (from u in _db.Users
+                                  join ur in _db.UserRoles on u.Id equals ur.UserId
+                                  join r in _db.Roles on ur.RoleId equals r.Id
+                                  select new { u.Email, RoleName = r.Name })
+                                 .ToListAsync();
+            
+            var result = "Users in database:\n\n";
+            foreach (var user in users)
+            {
+                var roles = userRoles.Where(ur => ur.Email == user.Email).Select(ur => ur.RoleName);
+                result += $"Email: {user.Email}\n";
+                result += $"Phone: {user.PhoneNumber}\n";
+                result += $"PhoneConfirmed: {user.PhoneNumberConfirmed}\n";
+                result += $"Roles: {string.Join(", ", roles)}\n\n";
+            }
+            
+            return Content(result, "text/plain");
         }
     }
 }
