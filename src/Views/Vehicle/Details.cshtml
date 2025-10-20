@@ -1,0 +1,204 @@
+@model MT.Data.VehicleRegistration
+@using System.Globalization
+@inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer L
+@{
+    Layout = "_Layout";
+    var ci = CultureInfo.CurrentUICulture;
+    var rtl  = ci.TextInfo.IsRightToLeft ? "rtl" : "ltr";
+    bool isTank = string.Equals(Model.VehicleType, "tank", StringComparison.OrdinalIgnoreCase);
+    bool canDownload = (ViewBag.CanDownload as bool?) ?? true;
+    string T(string en, string ar) => ci.TextInfo.IsRightToLeft ? ar : en;
+    var tRef = T("Reference", "المرجع");
+    var tSubmitted = T("Submitted", "تاريخ التقديم");
+    var tUploaded = T("Uploaded", "تم الرفع");
+    var tMissing = T("Missing", "مفقود");
+    var tApprovedBy = T("Approved By:", "تمت الموافقة بواسطة:");
+    var tRejectedBy = T("Rejected By:", "تم الرفض بواسطة:");
+    var tWhen = T("When:", "التاريخ:");
+    var tComment = T("Comment:", "ملاحظة:");
+    var tReason = T("Reason:", "السبب:");
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+  :root { --primary:#7C1D3A; --primary-800:#6D1933; --border:#E7E7EA; }
+  .page-wrap{ padding:24px 16px; }
+  .h-title{ font-weight:800; color:#222; margin-bottom:8px; }
+  .lead-text{ color:#555; }
+  .btn-primary{ background:var(--primary); border-color:var(--primary); color:#fff; }
+  .btn-primary:hover{ background:var(--primary-800); border-color:var(--primary-800); }
+  .btn-outline-primary{ color:var(--primary); border-color:var(--primary); }
+  .btn-outline-primary:hover{ background:var(--primary); color:#fff; }
+  .card-soft{ background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,.05); }
+  .kv-row{ padding:.65rem 0; border-bottom:1px dashed var(--border); display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .kv-row:last-child{ border-bottom:0; }
+  .kv-key{ color:#666; white-space:nowrap; }
+  .kv-val{ font-weight:600; color:#222; text-align:end; }
+  table.doc-table{ width:100%; border-collapse:collapse; }
+  .doc-table th, .doc-table td{ padding:10px 12px; border-bottom:1px solid var(--border); }
+  .doc-table th{ background:#fafafa; color:#333; font-weight:700; }
+  .status-ok{ color:#1e7b34; font-weight:600; }
+  .status-miss{ color:#999; font-weight:600; }
+  .lang-toggle .btn{ border-radius:999px; }
+</style>
+
+<div class="page-wrap" dir="@rtl">
+  <div class="container-fluid">
+
+    <!-- Header -->
+    <div class="d-flex align-items-start justify-content-between flex-wrap gap-2 mb-3">
+      <div>
+        <h1 class="h-title" data-i="title">@L["Vehicle Registration Details"]</h1>
+        <p class="lead-text mb-1" data-i="lead">@L["Below are all details and uploaded documents for this vehicle registration."]</p>
+        <div class="small text-muted">
+          <strong>@tRef:</strong>
+          <span class="badge bg-light text-dark border me-2" style="font-weight:600;">@($"APP{Model.Id:D6}")</span>
+          @* Token hidden per request *@
+        </div>
+      </div>
+      <div class="lang-toggle">
+        <a class="btn btn-outline-secondary me-2 @(!ci.TextInfo.IsRightToLeft?"active":"")"
+           href="@Url.Action("DetailsByToken","Vehicle", new { token = Model.UniqueToken, culture="en", ui_culture="en" })">English</a>
+        <a class="btn btn-outline-secondary @(ci.TextInfo.IsRightToLeft?"active":"")"
+           href="@Url.Action("DetailsByToken","Vehicle", new { token = Model.UniqueToken, culture="ar", ui_culture="ar" })">العربية</a>
+      </div>
+    </div>
+
+    <!-- Owner & Driver Info -->
+    <div class="card card-soft mb-4">
+      <div class="card-header bg-white border-0">
+        <h2 class="h6 mb-0 text-center" data-i="ownerDriver">@L["Owner and Driver Information"]</h2>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-6"><div class="kv-row"><span class="kv-key">@L["Owner's Phone"]</span><span class="kv-val">@Model.OwnerPhone</span></div></div>
+          <div class="col-md-6"><div class="kv-row"><span class="kv-key">@L["Owner Name"]</span><span class="kv-val">@Model.VehicleOwnerName</span></div></div>
+          <div class="col-md-6"><div class="kv-row"><span class="kv-key">@L["Driver's Phone"]</span><span class="kv-val">@Model.DriverPhone</span></div></div>
+          <div class="col-md-6"><div class="kv-row"><span class="kv-key">@L["Driver Name"]</span><span class="kv-val">@Model.DriverName</span></div></div>
+          <div class="col-md-6"><div class="kv-row"><span class="kv-key">@L["Vehicle Type"]</span><span class="kv-val">@Model.VehicleType</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Document List -->
+    <div class="card card-soft mb-4">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0">@L["Status"]</h2>
+        <span class="badge @(Model.Status == "Approved" ? "bg-success" : Model.Status == "Rejected" ? "bg-danger" : Model.Status == "Under Review" ? "bg-warning text-dark" : "bg-secondary")">@Model.Status</span>
+      </div>
+      @if (Model.Status == "Rejected" && !string.IsNullOrWhiteSpace(Model.RejectReason))
+      {
+        <div class="card-body">
+          <div class="mb-2"><strong>@tSubmitted:</strong> @Model.SubmittedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+          <div class="mb-2"><strong>@tRejectedBy</strong> @(!string.IsNullOrWhiteSpace(Model.RejectedByName) ? Model.RejectedByName : "—") (@(!string.IsNullOrWhiteSpace(Model.RejectedByRole) ? Model.RejectedByRole : "—"))</div>
+          <div class="mb-2"><strong>@tWhen</strong> @(Model.RejectedAt.HasValue ? Model.RejectedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "—")</div>
+          <div class="mb-1"><strong>@tReason</strong></div>
+          <div class="border rounded p-2 bg-light" style="white-space:pre-wrap">@Model.RejectReason</div>
+        </div>
+      }
+      else if (Model.Status == "Approved")
+      {
+        <div class="card-body">
+          <div class="mb-2"><strong>@tSubmitted:</strong> @Model.SubmittedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+          <div class="mb-2"><strong>@tApprovedBy</strong> @(!string.IsNullOrWhiteSpace(Model.ApprovedByName) ? Model.ApprovedByName : "—") (@(!string.IsNullOrWhiteSpace(Model.ApprovedByRole) ? Model.ApprovedByRole : "—"))</div>
+          <div class="mb-2"><strong>@tWhen</strong> @(Model.ApprovedAt.HasValue ? Model.ApprovedAt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm") : "—")</div>
+          @if (!string.IsNullOrWhiteSpace(Model.ApproveComment))
+          {
+            <div class="mb-1"><strong>@tComment</strong></div>
+            <div class="border rounded p-2 bg-light" style="white-space:pre-wrap">@Model.ApproveComment</div>
+          }
+        </div>
+      }
+      else
+      {
+        <div class="card-body">
+          <div class="mb-0"><strong>@tSubmitted:</strong> @Model.SubmittedDate.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</div>
+        </div>
+      }
+    </div>
+
+    <!-- Document List -->
+    <div class="card card-soft mb-4">
+      <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+        <h2 class="h6 mb-0" data-i="docsTitle">
+          @(isTank ? L["Documents required for tanks"] : L["Documents required for trucks"])
+        </h2>
+        <div class="d-flex gap-2">
+          @if (canDownload)
+          {
+            <a href="@Url.Action("DownloadAllByToken","Vehicle", new { token = Model.UniqueToken })" class="btn btn-outline-primary btn-sm">
+              <i class="fa-solid fa-download me-1"></i> @L["Download All"]
+            </a>
+          }
+          <a href="@Url.Action("ExportPdfByToken","Vehicle", new { token = Model.UniqueToken, culture = (ci.TextInfo.IsRightToLeft ? "ar" : "en"), ui_culture = (ci.TextInfo.IsRightToLeft ? "ar" : "en"), lang = (ci.TextInfo.IsRightToLeft ? "ar" : "en") })" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-file-pdf me-1"></i> @L["Export as PDF"]
+          </a>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>@L["Document Name"]</th>
+              <th>@L["Status"]</th>
+              <th>@L["Action"]</th>
+            </tr>
+          </thead>
+                    <tbody>
+                        @{
+                            // Local helper
+                            void Row(int n, string docName, string fileKey, string? path)
+                            {
+                                bool up = !string.IsNullOrWhiteSpace(path);
+                                string cls = up ? "status-ok" : "status-miss";
+                                string txt = up ? tUploaded : tMissing;
+                                <text>
+                                <tr>
+                                    <td>@n</td>
+                                    <td>@docName</td>
+                                    <td><span class="@cls">@txt</span></td>
+                                    <td>
+                                            @if (up && canDownload)
+                                            {
+                                            <a class="btn btn-sm btn-primary"
+                                               href="@Url.Action("DownloadFileByToken","Vehicle", new { token = Model.UniqueToken, file = fileKey })">
+                                                <i class="fa-solid fa-download me-1"></i> @L["Download"]
+                                            </a>
+                                            }
+                                </td>
+                            </tr>
+                            </text>
+;
+                            }
+
+                            if (isTank)
+                            {
+                                Row(1, L["Double-sided ID card"].Value, "IdCardBothSides", Model.IdCardBothSidesPath);
+                                Row(2, L["Both sides of the tanker application form"].Value, "TankerFormBothSides", Model.TankerFormBothSidesPath);
+                                Row(3, L["IBAN certificate from bank"].Value, "IbanCertificate", Model.IbanCertificatePath);
+                                Row(4, L["Tank capacity certificate"].Value, "TankCapacityCert", Model.TankCapacityCertPath);
+                                Row(5, L["Dumping landfill (works)"].Value, "LandfillWorks", Model.LandfillWorksPath);
+                                Row(6, L["Signed registration form"].Value, "SignedRegistrationForm", Model.SignedRegistrationFormPath);
+                                Row(7, L["Release form"].Value, "ReleaseForm", Model.ReleaseFormPath);
+                            }
+                            else
+                            {
+                                Row(1, L["Double-sided ID card"].Value, "Truck_IdCard", Model.Truck_IdCardPath);
+                                Row(2, L["Trailer registration form"].Value, "Truck_TrailerRegistration", Model.Truck_TrailerRegistrationPath);
+                                Row(3, L["Traffic department certificate"].Value, "Truck_TrafficCertificate", Model.Truck_TrafficCertificatePath);
+                                Row(4, L["IBAN certificate"].Value, "Truck_IbanCertificate", Model.Truck_IbanCertificatePath);
+                                Row(5, L["Signed registration form"].Value, "Truck_VehicleRegForm", Model.Truck_VehicleRegFormPath);
+                                Row(6, L["Release form"].Value, "Truck_ReleaseForm", Model.Truck_ReleaseFormPath);
+                            }
+                        }
+                    </tbody>
+
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>

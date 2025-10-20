@@ -1,0 +1,485 @@
+﻿@{
+    Layout = null;
+    var lang = (ViewBag.Lang as string)?.ToLower() == "ar" ? "ar" : "en";
+}
+<!DOCTYPE html>
+<html lang="@(lang)" dir="@(lang == "ar" ? "rtl" : "ltr")">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mktb Alsqr Aldhhba – Bilingual</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --brand: #c89a4b;
+            --ink: #2a2a2a;
+            --bg: #f9f6f1;
+        }
+
+        body {
+            color: var(--ink);
+            background: #f9f9f9;
+        }
+
+        .btn-brand, .btn-mta {
+            background: var(--brand);
+            color: #fff;
+            border: none;
+        }
+
+            .btn-brand:hover, .btn-mta:hover {
+                filter: brightness(0.95);
+                color: #fff;
+            }
+
+        .soft-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0,0,0,.06);
+            padding: 1.5rem;
+        }
+
+        .hero {
+            background: var(--bg);
+            border-radius: 24px;
+        }
+
+        .section-title {
+            color: var(--brand);
+            font-weight: 700;
+        }
+
+        footer {
+            border-top: 1px solid #eee;
+        }
+
+        /* Language toggle (show only the active language) */
+        .lang-en, .lang-ar {
+            display: none !important;
+        }
+
+        .show-en .lang-en, .show-ar .lang-ar {
+            display: revert !important;
+        }
+
+            .show-en .lang-en.block, .show-ar .lang-ar.block {
+                display: block !important;
+            }
+
+        /* Section card + checks */
+        .section-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 18px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+            .check-item i {
+                color: var(--brand);
+                margin-top: 0.25rem;
+            }
+
+        .badge-pill {
+            background: var(--brand);
+            color: #fff;
+            padding: 0.4rem 0.8rem;
+            border-radius: 50rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body class="@(lang == "ar" ? "show-ar" : "show-en")">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                🦅
+                <span class="lang-en">Mktb Alsqr Aldhhba</span>
+                <span class="lang-ar">مكتب الصقر الذهبي</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">☰</button>
+            <div id="nav" class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">
+                            <span class="lang-en">Home</span><span class="lang-ar">الصفحة الرئيسية</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#tankers">
+                            <span class="lang-en">Tankers</span><span class="lang-ar">الصهاريج</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#trucks">
+                            <span class="lang-en">Trucks</span><span class="lang-ar">الشاحنات</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#steps">
+                            <span class="lang-en">Steps</span><span class="lang-ar">الخطوات</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#faq">
+                            <span class="lang-en">FAQ</span><span class="lang-ar">الأسئلة</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#contact">
+                            <span class="lang-en">Contact</span><span class="lang-ar">اتصل</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="d-flex ms-3">
+                    <!-- Both buttons point to site2 now -->
+                    <a href="@Url.Action("site2", new { lang = "en" })" class="btn btn-sm @(lang=="en"?"btn-brand":"btn-outline-secondary") me-2">EN</a>
+                    <a href="@Url.Action("site2", new { lang = "ar" })" class="btn btn-sm @(lang=="ar"?"btn-brand":"btn-outline-secondary")">العربية</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero container p-4 p-lg-5 my-4 soft-card" id="home">
+        <div class="row align-items-center g-4">
+            <div class="col-lg-6 order-lg-2">
+                <img src="~/img/truck_1.png" class="img-fluid rounded-4" alt="Hero truck" />
+            </div>
+            <div class="col-lg-6">
+                <h1 class="display-6 fw-bold lang-en block">Register your request with the e-service of Mktb Alsqr Aldhhba</h1>
+                <h1 class="display-6 fw-bold lang-ar block">سجّل طلبك مع الخدمة الإلكترونية لمكتب الصقر الذهبي</h1>
+                <p class="lead muted lang-en block">Submit your registration online — we guide you step by step.</p>
+                <p class="lead muted lang-ar block">قدّم تسجيلك عبر الإنترنت بخطوات واضحة وسهلة.</p>
+                <a href="/main/register" class="btn btn-brand btn-lg lang-en">Register Now</a>
+                <a href="/main/register" class="btn btn-brand btn-lg lang-ar">سجّل الآن</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- TANKERS -->
+    <section id="tankers" class="container my-5">
+        <div class="d-flex align-items-center mb-3">
+            <span class="badge-pill me-2 lang-en">Tankers</span>
+            <span class="badge-pill me-2 lang-ar">الصهاريج</span>
+            <h3 class="h4 fw-bold m-0 lang-en">Documents Required for Tanker Registration</h3>
+            <h3 class="h4 fw-bold m-0 lang-ar">المستندات المطلوبة لتسجيل الصهاريج</h3>
+        </div>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6">
+                <div class="section-card p-3 h-100 d-flex align-items-center justify-content-center">
+                    <!-- original image from first code -->
+                    <img src="~/img/tank_s1.png" class="img-fluid rounded-3" alt="Tankers">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- English list (exact text you provided) -->
+                <div class="section-card p-4 h-100 lang-en">
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Personal ID (both sides)</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Valid tanker registration</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Valid discharge permit</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Valid operating/emptying certificate</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Owner & driver mobile numbers</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>IBAN certificate from the bank</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Release form for the applicant</span></div>
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="/main/register">Register Now</a>
+                    </div>
+                </div>
+                <!-- Arabic list (your Arabic) -->
+                <div class="section-card p-4 h-100 lang-ar">
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>البطاقة الشخصية بالوجهين</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> استمارة الصهريج بالوجهين </span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>تصريح التفريغ </span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>   ⁠ شهادة من المرور بكشف السيارات المملوكة  </span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>رقم جوال المالك والسائق.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>رقم ايبان من البنك.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>     توقيع استمارة طلب تسجيل مركبة.      </span></div>
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="/main/register">سجّل الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRUCKS -->
+    @* <section id="trucks" class="container my-5">
+        <div class="d-flex align-items-center mb-3">
+            <span class="badge-pill me-2 lang-en">Trucks</span>
+            <span class="badge-pill me-2 lang-ar">الشاحنات</span>
+            <h3 class="h4 fw-bold m-0 lang-en">Documents Required for Truck Registration</h3>
+            <h3 class="h4 fw-bold m-0 lang-ar">مستندات تسجيل الشاحنات</h3>
+        </div>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6 order-lg-2">
+                <div class="section-card p-3 h-100 d-flex align-items-center justify-content-center">
+                    <!-- original image from first code -->
+                    <img src="~/img/truck_s2.png" class="img-fluid rounded-3" alt="Trucks">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- English list -->
+                <div class="section-card p-4 h-100 lang-en">
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Personal ID (both sides)</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Valid truck registration</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Release form for the applicant</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Owner & driver mobile numbers</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Signed vehicle registration form</span></div>
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="#contact">Register Now</a>
+                    </div>
+                </div>
+                <!-- Arabic list -->
+                <div class="section-card p-4 h-100 lang-ar">
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>البطاقة الشخصية (صورة واضحة للوجهين)</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>استمارة الشاحنة سارية المفعول</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>نموذج إخلاء طرف لمقدّم طلب التسجيل</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>رقم جوال مالك المركبة والسائق</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>توقيع استمارة طلب تسجيل المركبة</span></div>
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="#contact">سجّل الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> *@
+
+    <!-- TRUCKS -->
+    <section id="trucks" class="container my-5">
+        <div class="d-flex align-items-center mb-3">
+            <span class="badge-pill me-2 lang-en">Trucks</span>
+            <span class="badge-pill me-2 lang-ar">الشاحنات</span>
+            <h3 class="h4 fw-bold m-0 lang-en">Documents Required for Truck Registration</h3>
+            <h3 class="h4 fw-bold m-0 lang-ar">مستندات تسجيل الشاحنات</h3>
+        </div>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-lg-6 order-lg-2">
+                <div class="section-card p-3 h-100 d-flex align-items-center justify-content-center">
+                    <!-- استخدمنا نفس الصور الأصلية من أول كود -->
+                    <img src="~/img/truck_s2.png" class="img-fluid rounded-3" alt="Trucks">
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- English list (unchanged, since you asked not to translate) -->
+                <div class="section-card p-4 h-100 lang-en">
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Personal ID (both sides)</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Valid truck registration</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Release form for the applicant</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Owner & driver mobile numbers</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span>Signed vehicle registration form</span></div>
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="/main/register">Register Now</a>
+                    </div>
+                </div>
+
+                <!-- Arabic list (exact text you provided) -->
+                <div class="section-card p-4 h-100 lang-ar">
+                    
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> البطاقة الشخصية بالوجهين.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> استمارة الرأس بالوجهين.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> استمارة المقطورة بالوجهين.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> شهادة من المرور بكشف السيارات المملوكة.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> رقم جوال المالك والسائق.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> رقم ايبان من البنك.</span></div>
+                    <div class="check-item"><i class="fa-solid fa-check"></i><span> توقيع استمارة طلب تسجيل مركبة.</span></div>
+
+                    @* <p class="mt-3 mb-0 text-muted small">
+                        ملحوظة: جميع الأوراق المطلوبة الأصلية سارية المدة المطلوبة للتسجيل
+                    </p> *@
+
+                    <div class="mt-3">
+                        <a class="btn btn-mta rounded-pill px-4" href="#contact">سجّل الآن</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- 4 STEPS -->
+    <section id="steps" class="container mb-4">
+        <div class="soft-card">
+            <h2 class="section-title mb-3 lang-en">How do you register? 4 simple steps</h2>
+            <h2 class="section-title mb-3 lang-ar">كيف تسجّل مركبتك؟ 4 خطوات بسيطة</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-4 h-100">
+                        <div class="fw-bold mb-2">01</div>
+                        <h6 class="lang-en">Download the form & fill it</h6>
+                        <h6 class="lang-ar">تحميل استمارة الطلب وتعبئتها</h6>
+                        <p class="mb-0 lang-en">Get the application from the website and complete all required fields.</p>
+                        <p class="mb-0 lang-ar">حمّل النموذج من موقعنا وأكمِل الحقول المطلوبة كما هو موضح للصهاريج أو الشاحنات.</p>
+                        <a class="btn btn-sm btn-outline-secondary mt-2 lang-en" href="~/doc/alsqr.pdf">Get the Form</a>
+                        <a class="btn btn-sm btn-outline-secondary mt-2 lang-ar" href="~/doc/alsqr.pdf">حمّل النموذج</a>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-4 h-100">
+                        <div class="fw-bold mb-2">02</div>
+                        <h6 class="lang-en">Prepare documents electronically</h6>
+                        <h6 class="lang-ar">تجهيز المستندات إلكترونياً</h6>
+                        <p class="mb-0 lang-en">Collect the listed documents exactly as required (crushers or trucks).</p>
+                        <p class="mb-0 lang-ar">جهّز جميع الأوراق المطلوبة كما هي موضحة على الموقع (الشاحنات أو الصهاريج).</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-4 h-100">
+                        <div class="fw-bold mb-2">03</div>
+                        <h6 class="lang-en">Submit the request online</h6>
+                        <h6 class="lang-ar">تقديم الطلب إلكترونياً</h6>
+                        <p class="mb-0 lang-en">Upload the scanned documents via the website or send them by email.</p>
+                        <p class="mb-0 lang-ar">ارفع المستندات مصوّرة عبر موقعنا، أو أرسلها عبر البريد الإلكتروني.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 border rounded-4 h-100">
+                        <div class="fw-bold mb-2">04</div>
+                        <h6 class="lang-en">Review and confirmation</h6>
+                        <h6 class="lang-ar">قم بمراجعة الطلب والتأكيد</h6>
+                        <p class="mb-0 lang-en">Your request will be reviewed and you’ll receive a confirmation of completion.</p>
+                        <p class="mb-0 lang-ar">سيتم مراجعة طلبك وسيصلك تأكيد باكتمال الإجراءات.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="container mb-4">
+        <div class="soft-card">
+            <h2 class="section-title mb-3 lang-en">Frequently Asked Questions</h2>
+            <h2 class="section-title mb-3 lang-ar">الأسئلة المتكررة</h2>
+            <div class="accordion" id="faqAcc">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="q1h">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1">
+                            <span class="lang-en">1. What is the approximate waiting time for my turn?</span>
+                            <span class="lang-ar">١. ما المدة التقريبية التي سننتظرها حتى يحين دوري؟</span>
+                        </button>
+                    </h2>
+                    <div id="q1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+                        <div class="accordion-body">
+                            <p class="lang-en">Times vary by season and document completeness. We aim to finish requests as quickly as possible.</p>
+                            <p class="lang-ar">تختلف المدة حسب الموسم واكتمال المستندات. نسعى لإنهاء الطلب بأسرع وقت ممكن.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="q2h">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2">
+                            <span class="lang-en">2. What is the minimum truck age permitted for registration?</span>
+                            <span class="lang-ar">٢. ما هو الحد الأدنى لعمر الشاحنة المسموح به للتسجيل؟</span>
+                        </button>
+                    </h2>
+                    <div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                        <div class="accordion-body">
+                            <p class="lang-en">Subject to the current authority rules; contact us to confirm the latest limit.</p>
+                            <p class="lang-ar">يتبع لاشتراطات الجهة المختصة الحالية؛ تواصل معنا لمعرفة الحد المسموح به.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="q3h">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3">
+                            <span class="lang-en">3. Do crushers/trucks have to wait the same time to work with you?</span>
+                            <span class="lang-ar">٣. هل تختلف الصهاريج/الشاحنات في مدة الانتظار للعمل معكم؟</span>
+                        </button>
+                    </h2>
+                    <div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                        <div class="accordion-body">
+                            <p class="lang-en">Waiting times differ based on request type and queue. We’ll inform you of the expected date.</p>
+                            <p class="lang-ar">تختلف المدة حسب نوع الطلب وقائمة الانتظار. سنبلغك بالموعد المتوقع.</p>
+                        </div>
+                    </div>
+                </div>
+                @* Optional Q4 removed as in your snippet *@
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="q5h">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q5">
+                            <span class="lang-en">4. Can I submit documents on different days?</span>
+                            <span class="lang-ar">٥. هل يمكن إرسال المستندات على أكثر من يوم؟</span>
+                        </button>
+                    </h2>
+                    <div id="q5" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                        <div class="accordion-body">
+                            <p class="lang-en">Please submit within 7 days from the first submission date; otherwise the request may be paused.</p>
+                            <p class="lang-ar">يرجى استكمال الإرسال خلال 7 أيام من تاريخ الإرسال الأول، وإلا قد يُعتبر الطلب موقوفاً.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="container my-5">
+        <div class="soft-card">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <h2 class="section-title lang-en">Contact Mktb Alsqr Aldhhba</h2>
+                    <h2 class="section-title lang-ar">تواصل مع مكتب الصقر الذهبي</h2>
+                    <p class="lang-en">Available Sunday to Thursday, 8:00 AM – 4:00 PM</p>
+                    <p class="lang-ar">نحن متاحون من الأحد إلى الخميس، من الساعة 8:00 صباحًا وحتى 4:00 مساءً.</p>
+                    <ul class="list-unstyled small">
+                        <li>📞 40022213 / 70063639</li>
+                        <li>✉️ QMAAC@outlook.com</li>
+                        <li>🏢 P.O.Box 19001, Doha – Qatar</li>
+                    </ul>
+                </div>
+                <div class="col-lg-6">
+                    <form class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label lang-en">Name</label>
+                            <label class="form-label lang-ar">الاسم</label>
+                            <input type="text" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label lang-en">Email</label>
+                            <label class="form-label lang-ar">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label lang-en">Phone</label>
+                            <label class="form-label lang-ar">رقم الهاتف</label>
+                            <input type="text" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label lang-en">Message</label>
+                            <label class="form-label lang-ar">الرسالة</label>
+                            <textarea class="form-control" rows="5"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-brand" type="submit">
+                                <span class="lang-en">Send</span>
+                                <span class="lang-ar">إرسال</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-white py-4 text-center">
+        <small class="muted">
+            <span class="lang-en">Mktb Alsqr Aldhhba – All Rights Reserved © 2025</span>
+            <span class="lang-ar">مكتب الصقر الذهبي – جميع الحقوق محفوظة © 2025</span>
+        </small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
