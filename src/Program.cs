@@ -5,7 +5,6 @@ using MT.Data;
 using System.Globalization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
-using MT.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,8 +66,11 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// Add Twilio Verify service
-builder.Services.AddTwilioVerify(builder.Configuration);
+// Add HttpClient for Firebase Auth API calls
+builder.Services.AddHttpClient();
+
+// Register Firebase Auth Service
+builder.Services.AddScoped<MT.Services.FirebaseAuthService>();
 
 // Initialize Firebase Admin using the JSON in the root folder
 try
