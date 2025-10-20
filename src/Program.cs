@@ -76,15 +76,19 @@ builder.Services.AddScoped<MT.Services.FirebaseAuthService>();
 try
 {
     var jsonPath = builder.Configuration["Firebase:ServiceAccountPath"];
-    if (!Path.IsPathRooted(jsonPath))
+    if (!string.IsNullOrEmpty(jsonPath) && !Path.IsPathRooted(jsonPath))
         jsonPath = Path.Combine(builder.Environment.ContentRootPath, jsonPath);
 
-    if (FirebaseApp.DefaultInstance == null)
+    if (FirebaseApp.DefaultInstance == null && !string.IsNullOrEmpty(jsonPath))
     {
+        // Use updated GoogleCredential approach to avoid deprecation warning
+        using var stream = new FileStream(jsonPath, FileMode.Open, FileAccess.Read);
+        var credential = GoogleCredential.FromStream(stream);
+        
         FirebaseApp.Create(new AppOptions
         {
-            Credential = GoogleCredential.FromFile(jsonPath),
-            ProjectId = "myaspnetotpapp" // 👈 from your JSON file
+            Credential = credential,
+            ProjectId = "mtootp-c11c5" // Updated project ID
         });
         Console.WriteLine("✅ Firebase initialized successfully (root JSON).");
     }
@@ -138,14 +142,14 @@ catch { }
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    // Only use HTTPS redirection in production to avoid warnings
 }
 else
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+    app.UseHttpsRedirection(); // Only redirect to HTTPS in production
 }
-
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

@@ -41,17 +41,19 @@ namespace MT.Controllers
                 var phoneE164 = ToE164FromAny(phoneRaw);
                 var (success, error) = await _firebaseAuth.SendSmsOtpServerSideAsync(phoneE164);
                 
-                if (!success && error != null && error.Contains("Firebase Admin error"))
+                if (success)
                 {
-                    // Fallback for development - just return success
-                    return (true, "Development mode: Use OTP code '123456'");
+                    return (true, null);
                 }
                 
-                return (success, error);
+                // If there's an error, log it and provide user-friendly message
+                Console.WriteLine($"SMS sending failed for {phoneE164}: {error}");
+                return (false, error ?? "Failed to send SMS verification code. Please try again.");
             }
             catch (Exception ex)
             {
-                return (false, $"SMS service error: {ex.Message}. Use '123456' for development.");
+                Console.WriteLine($"SMS service exception: {ex.Message}");
+                return (false, "SMS service is temporarily unavailable. Please try again later.");
             }
         }
 
@@ -62,16 +64,18 @@ namespace MT.Controllers
             {
                 var phoneE164 = ToE164FromAny(phoneRaw);
                 var (success, error) = await _firebaseAuth.VerifyPhoneOtpAsync(phoneE164, code);
-                return (success, error);
-            }
-            catch (Exception ex)
-            {
-                // For development, allow "123456" as fallback when there's an error
-                if (code == "123456")
+                
+                if (success)
                 {
                     return (true, null);
                 }
-                return (false, $"SMS verification error: {ex.Message}. Use '123456' for development.");
+                
+                return (false, error ?? "Invalid verification code. Please check and try again.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"OTP verification exception: {ex.Message}");
+                return (false, "Verification service is temporarily unavailable. Please try again later.");
             }
         }
 
