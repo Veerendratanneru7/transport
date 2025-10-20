@@ -88,7 +88,7 @@ try
         FirebaseApp.Create(new AppOptions
         {
             Credential = credential,
-            ProjectId = "mtootp-c11c5" // Updated project ID
+            ProjectId = builder.Configuration["Firebase:ProjectId"] // Use config value
         });
         Console.WriteLine("✅ Firebase initialized successfully (root JSON).");
     }
